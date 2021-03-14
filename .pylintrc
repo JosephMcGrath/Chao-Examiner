@@ -1,0 +1,5 @@
+[MESSAGES CONTROL]
+max-attributes=10
+max-args=8
+disable=
+    # Formatting handled by Black

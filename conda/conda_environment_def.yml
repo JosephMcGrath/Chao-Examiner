@@ -1,0 +1,14 @@
+name: chao_examiner
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    # Code Quality
+    - black
+    - pylint
+    - mypy
+    # Testing
+    - pytest
+    - coverage
