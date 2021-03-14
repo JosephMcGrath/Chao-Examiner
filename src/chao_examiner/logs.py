@@ -1,16 +1,17 @@
 """
-Simple logging setup.
+Defines logging setup.
 """
 import logging
 import logging.config
+import os
 from typing import Any, Dict, Optional
 
 LOG_NAME = __name__
 
 
-def setup_logging(log_path: Optional[str] = None) -> None:
+def setup_logging(log_dir: Optional[str] = None) -> None:
     """
-    Configure the logger.
+    Set up a log pointing at the specified path.
     """
     config: Dict[str, Any] = {
         "version": 1,
@@ -28,7 +29,7 @@ def setup_logging(log_path: Optional[str] = None) -> None:
             LOG_NAME: {"handlers": ["console"], "level": "DEBUG", "propagate": False}
         },
     }
-    if log_path is not None:
+    if log_dir is not None:
         config["loggers"][LOG_NAME]["handlers"].append("file")
         config["formatters"]["file"] = {
             "format": "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
@@ -37,7 +38,7 @@ def setup_logging(log_path: Optional[str] = None) -> None:
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "file",
-            "filename": log_path,
+            "filename": os.path.join(log_dir, LOG_NAME + ".log"),
             "maxBytes": 1000000,
             "backupCount": 3,
         }

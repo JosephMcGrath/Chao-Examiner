@@ -126,7 +126,6 @@ dmypy.json
 
 # Databases
 *.db
-data/
 
 # Logs
 *.log.*
