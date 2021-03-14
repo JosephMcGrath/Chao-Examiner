@@ -11,9 +11,9 @@ with open(HERE / "readme.md", encoding="utf-8") as f:
 
 # This call to setup() does all the work
 setup(
-    name="chao_examiner_HERE",
+    name="chao_examiner",
     version="0.1.0",
-    description="PACKAGE_DESCRIPTION_HERE",
+    description="Module to load, examine and manipulate Chao data for Sonic Adventure 2 save data.",
     long_description=README,
     long_description_content_type="text/markdown",
     author="Joe McGrath",
