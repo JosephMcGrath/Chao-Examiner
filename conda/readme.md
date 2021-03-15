@@ -14,9 +14,21 @@ activate chao_examiner
 conda env export > conda_environment_freeze.yml
 ```
 
+To re-create the environment:
+```bat
+activate
+conda env create -f conda_environment_freeze.yml
+```
+
 Then to update the environment later use this:
 ```bat
 activate chao_examiner
 conda env update -f conda_environment.yml --prune
 conda env export > conda_environment_freeze.yml
+```
+
+And to update the environment from the frozen file:
+```bat
+activate chao_examiner
+conda env update -f conda_environment_freeze.yml --prune
 ```
