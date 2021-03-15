@@ -66,3 +66,17 @@ def test_set_chao():
     assert slot_0_end.binary != slot_1_end.binary
     assert slot_0_start.binary == slot_1_end.binary
     assert slot_1_start.binary == slot_0_end.binary
+
+
+def test_clear_chao():
+    """
+    Check that clearing the data for a Chao works.
+    """
+    data = load_savefile("SONIC2B__ALF")
+
+    slot_0_start = data.get_chao(0)
+    data.clear_chao(0)
+    slot_0_end = data.get_chao(0)
+
+    assert slot_0_start.binary != slot_0_end.binary
+    assert slot_0_end.binary == b"\x00" * data.data_length

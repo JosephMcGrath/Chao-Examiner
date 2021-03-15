@@ -34,6 +34,8 @@ class SaveFile:
         """
         Get the Chao at a numbered slot.
         """
+        logger = self._log()
+        logger.debug("Getting chao %s.", chao_no)
         if chao_no > len(self.chao) or chao_no < 0:
             raise KeyError(
                 f"No chao with an index of {chao_no}, please enter a value between 0 and {len(self.chao)}"
@@ -47,6 +49,8 @@ class SaveFile:
         Update the numbered slot to be the provided Chao.
         """
         # TODO : BinaryChunk wants a single-operation "swap" method.
+        logger = self._log()
+        logger.debug("Setting chao %s.", chao_no)
         self.chao[chao_no].update(chao.binary)
         self.chao[chao_no].inject(self.loader)
 
@@ -54,3 +58,7 @@ class SaveFile:
         """
         Clear the save slot for a numbered Chao.
         """
+        logger = self._log()
+        logger.debug("Clearing chao %s.", chao_no)
+        self.chao[chao_no].clear()
+        self.chao[chao_no].inject(self.loader)
