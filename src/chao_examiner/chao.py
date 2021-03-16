@@ -36,6 +36,27 @@ class Chao:
                 data=self.binary,
                 start=chunk["Offset"],
             )
+        
+    def _unresolved_bytes(self) -> Dict[str, int]:
+        resolved = []
+        for chunk in self.chunks.values():
+            resolved.extend(range(chunk.start, chunk.end))
+        
+        output = {}
+        accumulator = ""
+        starts_at = -1
+        for offset, byte_value in enumerate(self.binary):
+            if offset in resolved:
+                if accumulator:
+                    output[starts_at] = accumulator
+                    accumulator = ""
+                    starts_at = -1
+                continue
+            if starts_at == -1:
+                starts_at = offset
+            accumulator += hex(byte_value)
+        
+        return output
 
     def to_dict(self) -> Dict[str, int]:
         """
@@ -44,6 +65,7 @@ class Chao:
         output = {}
         for attribute in self.chunks.values():
             output[attribute.label] = attribute.get_value()
+        output["unresolved"] = self._unresolved_bytes()
         return output
 
     def to_json(self, path: str) -> None:
