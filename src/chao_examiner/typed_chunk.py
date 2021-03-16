@@ -152,17 +152,17 @@ class BooleanChunk(TypedChunk):
     label = "Boolean"
     format = "?"
 
-    def get_value(self) -> int:
+    def get_value(self) -> bool:
         """
         Extract the value of the byte.
         """
-        return [int(x) for x in self.data][0]
+        return bool([int(x) for x in self.data][0])
 
-    def set_value(self, value: int) -> None:
+    def set_value(self, value: bool) -> None:
         """
         Set the value of the byte.
         """
-        self.data = bytes([value])
+        self.data = bytes([int(value)])
 
 
 class ChaoNameChunk(TypedChunk):
@@ -175,19 +175,21 @@ class ChaoNameChunk(TypedChunk):
     label = "Name"
     format = "BBBBBBB"
 
-    def get_value(self) -> int:
+    def get_value(self) -> str:
         """
         Extract the value of the byte.
         """
         return "".join([CHARACTER_ENCODING[int(x)] for x in self.data])
 
-    def set_value(self, value: int) -> None:
+    def set_value(self, value: str) -> None:
         """
         Set the value of the byte.
         """
         # TODO encode characters.
         self.data = bytes(value)
 
+# TODO : Bytes lookup table.
+# TODO : Float lookup flags.
 
 CHUNK_TYPES = [
     ByteChunk,

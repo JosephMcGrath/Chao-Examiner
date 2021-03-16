@@ -55,6 +55,7 @@ class Chao:
             if starts_at == -1:
                 starts_at = offset
             accumulator += hex(byte_value)
+        output[starts_at] = accumulator
         
         return output
 

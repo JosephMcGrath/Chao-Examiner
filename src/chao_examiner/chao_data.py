@@ -624,6 +624,90 @@ CHAO_OFFSETS = [
         "Data type": "Byte",
         "Lookup": "SA2BEggColour",
     },
+    {
+        "Attribute": "SADX animal behaviours",
+        "Offset": 1248,
+        "Data type": "Short",
+        "Lookup": "SADXAnimalFlags",
+    },
+    {
+        "Attribute": "SADX arms part",
+        "Offset": 1258,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX ears part",
+        "Offset": 1253,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX forehead part",
+        "Offset": 1254,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX horns part",
+        "Offset": 1255,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX legs part",
+        "Offset": 1256,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX tail part",
+        "Offset": 1257,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX wings part",
+        "Offset": 1258,
+        "Data type": "Byte",
+        "Lookup": "SADXAnimal",
+    },
+    {
+        "Attribute": "SADX Sonic bond",
+        "Offset": 1276,
+        "Data type": "Signed byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "SADX Tails bond",
+        "Offset": 1282,
+        "Data type": "Signed byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "SADX Knuckles bond",
+        "Offset": 1288,
+        "Data type": "Signed byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "SADX Amy bond",
+        "Offset": 1294,
+        "Data type": "Signed byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "SADX E-102 Gamma bond",
+        "Offset": 1300,
+        "Data type": "Signed byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "SADX Big bond",
+        "Offset": 1306,
+        "Data type": "Signed byte",
+        "Lookup": None,
+    },
 ]
 
 CHARACTER_ENCODING = {
