@@ -7,6 +7,8 @@ from typing import Dict, Optional, Union
 
 from .logs import LOG_NAME
 
+# TODO : Comparison operations & general niceties.
+
 
 class BinaryChunk:
     """
