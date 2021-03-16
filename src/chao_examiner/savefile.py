@@ -1,3 +1,8 @@
+"""
+Utilities to manage a single Sonic Adventure 2 Battle (steam) save file.
+"""
+
+
 import logging
 from typing import Optional, List
 
@@ -7,6 +12,9 @@ from .logs import LOG_NAME
 
 
 class SaveFile:
+    """
+    A single Sonic Adventure 2 Battle (steam) save file.
+    """
 
     data_start = 15012
     data_length = 2048

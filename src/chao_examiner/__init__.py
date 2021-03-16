@@ -6,5 +6,6 @@ from .binary_loader import BinaryLoader
 from .chao import Chao
 from .logs import LOG_NAME, setup_logging
 from .savefile import SaveFile
+from .typed_chunk import ByteChunk
 
 setup_logging(log_dir="")
