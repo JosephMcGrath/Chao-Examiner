@@ -5,6 +5,7 @@ import struct
 from typing import Any
 
 from .binary_loader import BinaryChunk
+from .chao_data import CHARACTER_ENCODING
 
 # TODO : Validate and throw warnings using the chunk's label.
 
@@ -164,6 +165,30 @@ class BooleanChunk(TypedChunk):
         self.data = bytes([value])
 
 
+class ChaoNameChunk(TypedChunk):
+    """
+    A chunk holding a chao's name.
+
+    This is a special case spanning 7 bytes.
+    """
+
+    label = "Name"
+    format = "BBBBBBB"
+
+    def get_value(self) -> int:
+        """
+        Extract the value of the byte.
+        """
+        return "".join([CHARACTER_ENCODING[int(x)] for x in self.data])
+
+    def set_value(self, value: int) -> None:
+        """
+        Set the value of the byte.
+        """
+        # TODO encode characters.
+        self.data = bytes(value)
+
+
 CHUNK_TYPES = [
     ByteChunk,
     SignedByteChunk,
@@ -171,5 +196,6 @@ CHUNK_TYPES = [
     IntChunk,
     FloatChunk,
     BooleanChunk,
+    ChaoNameChunk,
 ]
 CHUNK_LOOKUP = {x.label: x for x in CHUNK_TYPES}

@@ -5,7 +5,7 @@ Data defining an individual chao.
 import logging
 from typing import Dict, List, Optional
 import json
-from .chao_offsets import CHAO_OFFSETS, DATA_TYPE_LENGTHS
+from .chao_data import CHAO_OFFSETS, DATA_TYPE_LENGTHS
 from .logs import LOG_NAME
 from .typed_chunk import CHUNK_LOOKUP, TypedChunk
 
