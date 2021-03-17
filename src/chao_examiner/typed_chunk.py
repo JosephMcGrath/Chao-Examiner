@@ -188,6 +188,32 @@ class ChaoNameChunk(TypedChunk):
         # TODO encode characters.
         self.data = bytes(value)
 
+
+class TimeChunk(TypedChunk):
+    """
+    A chunk holding a Sonic Adventure time.
+
+    This is stored in 3 bytes, minutes, seconds & milliseconds.
+    """
+
+    label = "Time"
+    format = "BBB"
+
+    def get_value(self) -> str:
+        """
+        Extract the value of the byte.
+        """
+        # TODO : Something's up with milliseconds.
+        return ":".join([f"{int(x):02}" for x in self.data])
+
+    def set_value(self, value: str) -> None:
+        """
+        Set the value of the byte.
+        """
+        # TODO encode times.
+        self.data = bytes(value)
+
+
 # TODO : Bytes lookup table.
 # TODO : Float lookup flags.
 
@@ -199,5 +225,6 @@ CHUNK_TYPES = [
     FloatChunk,
     BooleanChunk,
     ChaoNameChunk,
+    TimeChunk,
 ]
 CHUNK_LOOKUP = {x.label: x for x in CHUNK_TYPES}

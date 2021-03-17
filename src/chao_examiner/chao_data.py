@@ -708,6 +708,54 @@ CHAO_OFFSETS = [
         "Data type": "Signed byte",
         "Lookup": None,
     },
+    {
+        "Attribute": "Crab Pool Race Time",
+        "Offset": 224,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Stumo Valley Race Time",
+        "Offset": 227,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Mushroom Forest Race Time",
+        "Offset": 230,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Block Canyon Race Time",
+        "Offset": 233,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Aquamarine Race Time",
+        "Offset": 236,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Topaz Race Time",
+        "Offset": 239,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Peridot Race Time",
+        "Offset": 242,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Garnet Race Time",
+        "Offset": 245,
+        "Data type": "Time",
+        "Lookup": None,
+    },
 ]
 
 CHARACTER_ENCODING = {

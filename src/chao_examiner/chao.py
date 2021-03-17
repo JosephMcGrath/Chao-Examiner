@@ -36,12 +36,12 @@ class Chao:
                 data=self.binary,
                 start=chunk["Offset"],
             )
-        
+
     def _unresolved_bytes(self) -> Dict[str, int]:
         resolved = []
         for chunk in self.chunks.values():
             resolved.extend(range(chunk.start, chunk.end))
-        
+
         output = {}
         accumulator = ""
         starts_at = -1
@@ -56,7 +56,7 @@ class Chao:
                 starts_at = offset
             accumulator += "|" + str(int(byte_value))
         output[starts_at] = accumulator
-        
+
         return output
 
     def to_dict(self) -> Dict[str, int]:
