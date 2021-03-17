@@ -917,6 +917,37 @@ CHAO_OFFSETS = [
         "Offset": 562,
         "Data type": "Short",
         "Lookup": None,
+    },
+    {
+        "Attribute": "Karate Rounds Played",
+        "Offset": 270,
+        "Data type": "Short",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Karate Rounds Won",
+        "Offset": 272,
+        "Data type": "Short",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Karate Rounds Lost",
+        "Offset": 274,
+        "Data type": "Short",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Karate Rank A",
+        "Offset": 266,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Karate Rank B",
+        "Offset": 267,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
 ]
 
 CHARACTER_ENCODING = {
