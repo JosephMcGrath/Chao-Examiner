@@ -937,13 +937,13 @@ CHAO_OFFSETS = [
         "Lookup": None,
     },
     {
-        "Attribute": "Karate Rank A",
+        "Attribute": "Karate Rank (Fights)",
         "Offset": 266,
         "Data type": "Byte",
         "Lookup": None,
     },
     {
-        "Attribute": "Karate Rank B",
+        "Attribute": "Karate Rank (Tournaments)",
         "Offset": 267,
         "Data type": "Byte",
         "Lookup": None,
