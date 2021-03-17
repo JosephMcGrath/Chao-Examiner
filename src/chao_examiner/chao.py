@@ -54,7 +54,7 @@ class Chao:
                 continue
             if starts_at == -1:
                 starts_at = offset
-            accumulator += hex(byte_value)
+            accumulator += "|" + str(int(byte_value))
         output[starts_at] = accumulator
         
         return output
