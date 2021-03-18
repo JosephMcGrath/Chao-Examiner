@@ -5,7 +5,7 @@ Data defining an individual chao.
 import logging
 from typing import Dict, List, Optional
 import json
-from .chao_data import CHAO_OFFSETS, DATA_TYPE_LENGTHS
+from .chao_data import CHAO_OFFSETS, DATA_TYPE_LENGTHS, LOOKUP_TABLES
 from .logs import LOG_NAME
 from .typed_chunk import CHUNK_LOOKUP, TypedChunk
 
@@ -30,19 +30,20 @@ class Chao:
                 continue
 
             data_loader = CHUNK_LOOKUP[chunk["Data type"]]
+            lookup = LOOKUP_TABLES.get(chunk["Lookup"], {})
 
             self.chunks[chunk["Attribute"]] = data_loader(
                 label=chunk["Attribute"],
                 data=self.binary,
                 start=chunk["Offset"],
+                lookup=lookup,
             )
-    
+
     def unresolved_bytes(self) -> Dict[str, int]:
         resolved = []
         for chunk in self.chunks.values():
             resolved.extend(range(chunk.start, chunk.end))
-        return {x : y for x, y in enumerate(self.binary) if x not in resolved}
-
+        return {x: y for x, y in enumerate(self.binary) if x not in resolved}
 
     def _unresolved_bytes_str(self) -> Dict[str, str]:
 

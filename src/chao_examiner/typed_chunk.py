@@ -2,7 +2,7 @@
 Utilities to unpack chunks as their appropriate Python type.
 """
 import struct
-from typing import Any
+from typing import Any, Dict
 
 from .binary_loader import BinaryChunk
 from .chao_data import CHARACTER_ENCODING
@@ -15,28 +15,31 @@ class TypedChunk(BinaryChunk):
     A chunk of binary data representing a known data type.
     """
 
-    label = "Not a type"
+    type_label = "Not a type"
     format = "B"
 
-    def __init__(self, label: str, data: bytes, start: int) -> None:
+    def __init__(
+        self, label: str, data: bytes, start: int, lookup: Dict[int, str]
+    ) -> None:
         super().__init__(
             label=label,
             data=data,
             start=start,
             end=start + struct.calcsize(self.format),
         )
+        self.lookup = lookup
 
-    def get_value(self) -> Any:
+    def get_value(self) -> int:
         """
-        Interpret the binary data as its proper type.
+        Extract the value of the byte.
         """
-        raise NotImplementedError("Not implemented by the base class.")
+        return struct.unpack(self.format, self.data)[0]
 
-    def set_value(self, value: Any) -> None:
+    def set_value(self, value: int) -> None:
         """
-        Set the binary data from its proper type.
+        Set the value of the byte.
         """
-        raise NotImplementedError("Not implemented by the base class.")
+        self.data = struct.pack(self.format, value)
 
 
 class ByteChunk(TypedChunk):
@@ -44,20 +47,8 @@ class ByteChunk(TypedChunk):
     A chunk holding an integer in a single byte.
     """
 
-    label = "Byte"
+    type_label = "Byte"
     format = "B"
-
-    def get_value(self) -> int:
-        """
-        Extract the value of the byte.
-        """
-        return [int(x) for x in self.data][0]
-
-    def set_value(self, value: int) -> None:
-        """
-        Set the value of the byte.
-        """
-        self.data = bytes([value])
 
 
 class SignedByteChunk(TypedChunk):
@@ -65,20 +56,8 @@ class SignedByteChunk(TypedChunk):
     A chunk holding an integer in a single signed byte.
     """
 
-    label = "Signed byte"
+    type_label = "Signed byte"
     format = "b"
-
-    def get_value(self) -> int:
-        """
-        Extract the value of the byte.
-        """
-        return [int(x) for x in self.data][0]
-
-    def set_value(self, value: int) -> None:
-        """
-        Set the value of the byte.
-        """
-        self.data = bytes([value])
 
 
 class ShortChunk(TypedChunk):
@@ -86,20 +65,8 @@ class ShortChunk(TypedChunk):
     A chunk holding a short integer number in 2 bytes.
     """
 
-    label = "Short"
+    type_label = "Short"
     format = "H"
-
-    def get_value(self) -> int:
-        """
-        Extract the value of the byte.
-        """
-        return [int(x) for x in self.data][0]
-
-    def set_value(self, value: int) -> None:
-        """
-        Set the value of the byte.
-        """
-        self.data = bytes([value])
 
 
 class IntChunk(TypedChunk):
@@ -107,20 +74,8 @@ class IntChunk(TypedChunk):
     A chunk holding an integer number in 4 bytes.
     """
 
-    label = "Int"
+    type_label = "Int"
     format = "I"
-
-    def get_value(self) -> int:
-        """
-        Extract the value of the byte.
-        """
-        return [int(x) for x in self.data][0]
-
-    def set_value(self, value: int) -> None:
-        """
-        Set the value of the byte.
-        """
-        self.data = bytes([value])
 
 
 class FloatChunk(TypedChunk):
@@ -128,20 +83,8 @@ class FloatChunk(TypedChunk):
     A chunk holding a floating point number in 4 bytes.
     """
 
-    label = "Float"
+    type_label = "Float"
     format = "f"
-
-    def get_value(self) -> int:
-        """
-        Extract the value of the byte.
-        """
-        return [int(x) for x in self.data][0]
-
-    def set_value(self, value: int) -> None:
-        """
-        Set the value of the byte.
-        """
-        self.data = bytes([value])
 
 
 class BooleanChunk(TypedChunk):
@@ -149,20 +92,8 @@ class BooleanChunk(TypedChunk):
     A chunk holding a boolean value in a single byte.
     """
 
-    label = "Boolean"
+    type_label = "Boolean"
     format = "?"
-
-    def get_value(self) -> bool:
-        """
-        Extract the value of the byte.
-        """
-        return bool([int(x) for x in self.data][0])
-
-    def set_value(self, value: bool) -> None:
-        """
-        Set the value of the byte.
-        """
-        self.data = bytes([int(value)])
 
 
 class ChaoNameChunk(TypedChunk):
@@ -172,7 +103,7 @@ class ChaoNameChunk(TypedChunk):
     This is a special case spanning 7 bytes.
     """
 
-    label = "Name"
+    type_label = "Name"
     format = "BBBBBBB"
 
     def get_value(self) -> str:
@@ -196,7 +127,7 @@ class TimeChunk(TypedChunk):
     This is stored in 3 bytes, minutes, seconds & milliseconds.
     """
 
-    label = "Time"
+    type_label = "Time"
     format = "BBB"
 
     def get_value(self) -> str:
@@ -214,8 +145,85 @@ class TimeChunk(TypedChunk):
         self.data = bytes(value)
 
 
-# TODO : Bytes lookup table.
-# TODO : Float lookup flags.
+class ByteLookup(ByteChunk):
+    """
+    A chunk holding a lookup value in a single byte.
+    """
+
+    type_label = "ByteLookup"
+
+    def get_value(self) -> int:
+        """
+        Extract the value of the byte.
+        """
+        value = struct.unpack(self.format, self.data)[0]
+        if value not in self.lookup:
+            raise KeyError(
+                f"{self.label} lookup table doesn't have a value for '{value}'."
+            )
+        return self.lookup[value]
+
+    def set_value(self, value: int) -> None:
+        """
+        Set the value of the byte.
+        """
+        number = [x for x, y in self.lookup.items() if y == value]
+        self.data = struct.pack(self.format, number)
+
+
+class IntFlags(IntChunk):
+    """
+    A series of boolean flags stored in a 4-byte sequence.
+    """
+
+    type_label = "IntFlags"
+
+    flag_keys = [2 ** x for x in range(31, -1, -1)]
+
+    def get_value(self) -> int:
+        """
+        Extract the value of the byte.
+        """
+        output = {}
+        value = struct.unpack(self.format, self.data)[0]
+        for key in self.flag_keys:
+            if key not in self.lookup:
+                continue
+            output[self.lookup[key]] = key <= value
+            if key <= value:
+                value -= key
+
+        return output
+
+    # TODO : Reverse operation.
+
+
+class ShortFlags(ShortChunk):
+    """
+    A series of boolean flags stored in a 2-byte sequence.
+    """
+
+    type_label = "ShortFlags"
+
+    flag_keys = [2 ** x for x in range(15, -1, -1)]
+
+    def get_value(self) -> int:
+        """
+        Extract the value of the byte.
+        """
+        output = {}
+        value = struct.unpack(self.format, self.data)[0]
+        for key in self.flag_keys:
+            if key not in self.lookup:
+                continue
+            output[self.lookup[key]] = key <= value
+            if key <= value:
+                value -= key
+
+        return output
+
+    # TODO : Reverse operation.
+
 
 CHUNK_TYPES = [
     ByteChunk,
@@ -226,5 +234,8 @@ CHUNK_TYPES = [
     BooleanChunk,
     ChaoNameChunk,
     TimeChunk,
+    ByteLookup,
+    ShortFlags,
+    IntFlags,
 ]
-CHUNK_LOOKUP = {x.label: x for x in CHUNK_TYPES}
+CHUNK_LOOKUP = {x.type_label: x for x in CHUNK_TYPES}
