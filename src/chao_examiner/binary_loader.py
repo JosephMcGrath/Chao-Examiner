@@ -49,6 +49,11 @@ class BinaryChunk:
         """Wipe the data from the chunk."""
         self.data = b"\x00" * (self.end - self.start)
 
+    def swap(self, new_data: bytes, target_data: Union["BinaryLoader", bytes]) -> None:
+        """Update the chunk to the new data and inject it into the larget binary."""
+        self.update(new_data)
+        self.inject(target_data)
+
 
 class BinaryLoader:
     """

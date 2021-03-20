@@ -1,12 +1,15 @@
+# # pylint: disable=too-many-lines
 """
 Lookup tables for data on Chao
 
 Data taken from: https://chao.tehfusion.co.uk/chao-hacking/
 """
 
+from typing import Dict, List, Union
+
 # TODO : Checking function for this data.
 
-DATA_TYPE_LENGTHS = {
+DATA_TYPE_LENGTHS: Dict[str, int] = {
     "Byte": 1,
     "Signed byte": 1,
     "Short": 2,
@@ -14,7 +17,7 @@ DATA_TYPE_LENGTHS = {
     "Float": 4,
 }
 
-CHAO_OFFSETS = [
+CHAO_OFFSETS: List[Dict[str, Union[str, int, None]]] = [
     {"Attribute": "Name", "Offset": 18, "Data type": "Name", "Lookup": None},
     {"Attribute": "Swim stat bar", "Offset": 32, "Data type": "Byte", "Lookup": None},
     {"Attribute": "Fly stat bar", "Offset": 33, "Data type": "Byte", "Lookup": None},
@@ -953,6 +956,12 @@ CHAO_OFFSETS = [
         "Data type": "Byte",
         "Lookup": None,
     },
+    {
+        "Attribute": "Chao Active",
+        "Offset": 132,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
 ]
 
 CHARACTER_ENCODING = {
@@ -1214,7 +1223,7 @@ CHARACTER_ENCODING = {
     255: " ",
 }
 
-LOOKUP_TABLES = {
+LOOKUP_TABLES: Dict[str, Dict[int, str]] = {
     "SADXChaoGarden": {
         0: "",
         4: "Station Square",

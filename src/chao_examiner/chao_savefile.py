@@ -1,5 +1,5 @@
 """
-Utilities to manage a single Sonic Adventure 2 Battle (steam) save file.
+Utilities to manage a single Sonic Adventure 2 Battle (steam) chao save file.
 """
 
 
@@ -11,9 +11,9 @@ from .chao import Chao
 from .logs import LOG_NAME
 
 
-class SaveFile:
+class ChaoSaveFile:
     """
-    A single Sonic Adventure 2 Battle (steam) save file.
+    A single Sonic Adventure 2 Battle (steam) chao save file.
     """
 
     data_start = 15012
@@ -21,6 +21,7 @@ class SaveFile:
     data_count = 24
 
     def __init__(self, path: str) -> None:
+        self.path = path
         self.loader = BinaryLoader.read(path)
         self.chao: List[BinaryChunk] = []
         # TODO : Check length
@@ -31,6 +32,13 @@ class SaveFile:
             self.chao.append(
                 self.loader.chunk(chao_name, line_no, line_no + self.data_length)
             )
+
+    def write(self, path: Optional[str] = None) -> None:
+        """Write the save file to its original or the selected path."""
+        # TODO : Not currently writing valid saves.
+        if path is None:
+            path = self.path
+        self.loader.write(path)
 
     @classmethod
     def _log(cls, name: Optional[str] = None) -> logging.Logger:
@@ -56,11 +64,9 @@ class SaveFile:
         """
         Update the numbered slot to be the provided Chao.
         """
-        # TODO : BinaryChunk wants a single-operation "swap" method.
         logger = self._log()
         logger.debug("Setting chao %s.", chao_no)
-        self.chao[chao_no].update(chao.binary)
-        self.chao[chao_no].inject(self.loader)
+        self.chao[chao_no].swap(chao.binary, self.loader)
 
     def clear_chao(self, chao_no: int) -> None:
         """

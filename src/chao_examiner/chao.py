@@ -2,11 +2,9 @@
 Data defining an individual chao.
 """
 
-import logging
-from typing import Dict, List, Optional
+from typing import Dict, List
 import json
-from .chao_data import CHAO_OFFSETS, DATA_TYPE_LENGTHS, LOOKUP_TABLES
-from .logs import LOG_NAME
+from .chao_data import CHAO_OFFSETS, LOOKUP_TABLES
 from .typed_chunk import CHUNK_LOOKUP, TypedChunk
 
 
@@ -28,26 +26,35 @@ class Chao:
                     f"Couldn't read chunk {chunk['Attribute']} - data type = {chunk['Data type']}"
                 )
                 continue
+            offset = chunk["Offset"]
+            if not isinstance(offset, int):
+                raise TypeError(
+                    f"{chunk['Attribute']}.Offset is the wrong type ({type(chunk['Offset'])})"
+                )
 
-            data_loader = CHUNK_LOOKUP[chunk["Data type"]]
-            lookup = LOOKUP_TABLES.get(chunk["Lookup"], {})
+            data_loader = CHUNK_LOOKUP[str(chunk["Data type"])]
+            lookup = LOOKUP_TABLES.get(str(chunk["Lookup"]), {})
 
-            self.chunks[chunk["Attribute"]] = data_loader(
-                label=chunk["Attribute"],
+            self.chunks[str(chunk["Attribute"])] = data_loader.load(
+                label=str(chunk["Attribute"]),
                 data=self.binary,
-                start=chunk["Offset"],
+                start=offset,
                 lookup=lookup,
             )
 
-    def unresolved_bytes(self) -> Dict[str, int]:
-        resolved = []
+    def unresolved_bytes(self) -> Dict[int, int]:
+        """
+        Create a dictionary describing un-resolved bytes in the chao, listed by byte
+        offset.
+        """
+        resolved: List[int] = []
         for chunk in self.chunks.values():
             resolved.extend(range(chunk.start, chunk.end))
-        return {x: y for x, y in enumerate(self.binary) if x not in resolved}
+        return {x: int(y) for x, y in enumerate(self.binary) if x not in resolved}
 
-    def _unresolved_bytes_str(self) -> Dict[str, str]:
+    def _unresolved_bytes_str(self) -> Dict[int, str]:
 
-        resolved = []
+        resolved: List[int] = []
         for chunk in self.chunks.values():
             resolved.extend(range(chunk.start, chunk.end))
 

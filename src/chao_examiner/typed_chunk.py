@@ -2,7 +2,7 @@
 Utilities to unpack chunks as their appropriate Python type.
 """
 import struct
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from .binary_loader import BinaryChunk
 from .chao_data import CHARACTER_ENCODING
@@ -18,24 +18,45 @@ class TypedChunk(BinaryChunk):
     type_label = "Not a type"
     format = "B"
 
-    def __init__(
-        self, label: str, data: bytes, start: int, lookup: Dict[int, str]
-    ) -> None:
+    @classmethod
+    def load(
+        cls,
+        label: str,
+        data: bytes,
+        start: int,
+        lookup: Optional[Dict[int, str]] = None,
+    ) -> "TypedChunk":
+        """
+        Load the chunk based on it's typed properties.
+        """
+        output = cls(
+            label=label,
+            data=data,
+            start=start,
+            end=start + struct.calcsize(cls.format),
+        )
+        if lookup is None:
+            output.lookup = {}
+        else:
+            output.lookup = lookup
+        return output
+
+    def __init__(self, label: str, data: bytes, start: int, end: int) -> None:
         super().__init__(
             label=label,
             data=data,
             start=start,
-            end=start + struct.calcsize(self.format),
+            end=end,
         )
-        self.lookup = lookup
+        self.lookup: Dict[int, str]
 
-    def get_value(self) -> int:
+    def get_value(self) -> Any:
         """
         Extract the value of the byte.
         """
         return struct.unpack(self.format, self.data)[0]
 
-    def set_value(self, value: int) -> None:
+    def set_value(self, value: Any) -> None:
         """
         Set the value of the byte.
         """
@@ -110,14 +131,24 @@ class ChaoNameChunk(TypedChunk):
         """
         Extract the value of the byte.
         """
+
         return "".join([CHARACTER_ENCODING[int(x)] for x in self.data])
 
     def set_value(self, value: str) -> None:
         """
         Set the value of the byte.
         """
-        # TODO encode characters.
-        self.data = bytes(value)
+
+        accumulator: List[int] = []
+        for character in range(7):
+            if character > len(value) - 1:
+                accumulator.append(0)
+                continue
+            print(character)
+            accumulator.extend(
+                [x for x, y in CHARACTER_ENCODING.items() if y == value[character]]
+            )
+        self.data = bytes(accumulator)
 
 
 class TimeChunk(TypedChunk):
@@ -141,8 +172,13 @@ class TimeChunk(TypedChunk):
         """
         Set the value of the byte.
         """
-        # TODO encode times.
-        self.data = bytes(value)
+        parts = value.split(":")
+        if len(parts) != 3:
+            raise ValueError("Number must be formatted minutes:seconds:milliseconds.")
+        if any(not x.isnumeric() for x in parts):
+            raise ValueError("Each part of the time must be a number.")
+
+        self.data = bytes([int(x) for x in parts])
 
 
 class ByteLookup(ByteChunk):
@@ -152,7 +188,7 @@ class ByteLookup(ByteChunk):
 
     type_label = "ByteLookup"
 
-    def get_value(self) -> int:
+    def get_value(self) -> str:
         """
         Extract the value of the byte.
         """
@@ -163,11 +199,13 @@ class ByteLookup(ByteChunk):
             )
         return self.lookup[value]
 
-    def set_value(self, value: int) -> None:
+    def set_value(self, value: str) -> None:
         """
         Set the value of the byte.
         """
-        number = [x for x, y in self.lookup.items() if y == value]
+        if value not in self.lookup.values():
+            raise KeyError(f"{value} isn't a valid lookup value.")
+        number = [x for x, y in self.lookup.items() if y == value][0]
         self.data = struct.pack(self.format, number)
 
 
@@ -180,7 +218,7 @@ class IntFlags(IntChunk):
 
     flag_keys = [2 ** x for x in range(31, -1, -1)]
 
-    def get_value(self) -> int:
+    def get_value(self) -> Dict[str, bool]:
         """
         Extract the value of the byte.
         """
@@ -195,34 +233,28 @@ class IntFlags(IntChunk):
 
         return output
 
-    # TODO : Reverse operation.
+    def set_value(self, value: Dict[str, bool]) -> None:
+        """
+        Set the value of the byte.
+        """
+        inverted_lookup = {y: x for x, y in self.lookup.items()}
+        to_set = 0
+        for new_key, new_value in value.items():
+            if new_key not in inverted_lookup:
+                raise ValueError(f"{new_key} not in lookup table {inverted_lookup}.")
+            if new_value:
+                print(to_set)
+                to_set += inverted_lookup[new_key]
+        self.data = struct.pack(self.format, to_set)
 
 
-class ShortFlags(ShortChunk):
+class ShortFlags(IntFlags):
     """
     A series of boolean flags stored in a 2-byte sequence.
     """
 
     type_label = "ShortFlags"
-
-    flag_keys = [2 ** x for x in range(15, -1, -1)]
-
-    def get_value(self) -> int:
-        """
-        Extract the value of the byte.
-        """
-        output = {}
-        value = struct.unpack(self.format, self.data)[0]
-        for key in self.flag_keys:
-            if key not in self.lookup:
-                continue
-            output[self.lookup[key]] = key <= value
-            if key <= value:
-                value -= key
-
-        return output
-
-    # TODO : Reverse operation.
+    format = "H"
 
 
 CHUNK_TYPES = [

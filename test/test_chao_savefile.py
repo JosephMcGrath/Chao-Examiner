@@ -7,18 +7,18 @@ import pytest
 from .load_data import data_path
 
 
-def load_savefile(data_name: str) -> chao_examiner.SaveFile:
+def load_savefile(data_name: str) -> chao_examiner.ChaoSaveFile:
     """
     Helper to load a SaveFile.
     """
-    return chao_examiner.SaveFile(data_path(data_name))
+    return chao_examiner.ChaoSaveFile(data_path(data_name))
 
 
 def test_load():
     """
     Check that data loading doesn't cause an error.
     """
-    data = chao_examiner.SaveFile(data_path("SONIC2B__ALF"))
+    data = chao_examiner.ChaoSaveFile(data_path("SONIC2B__ALF"))
 
     assert len(data.chao) == 24
 
