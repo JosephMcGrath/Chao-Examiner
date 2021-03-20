@@ -2,9 +2,12 @@
 Data defining an individual chao.
 """
 
-from typing import Any, Dict, List
 import json
+import logging
+from typing import Any, Dict, List, Optional
+
 from .chao_data import CHAO_OFFSETS, LOOKUP_TABLES
+from .logs import LOG_NAME
 from .typed_chunk import CHUNK_LOOKUP, TypedChunk
 
 
@@ -15,16 +18,23 @@ class Chao:
 
     def __init__(self, binary: bytes) -> None:
         self.binary = binary
-        self.chunks: Dict[str, TypedChunk] = {}
+        self.chunks: List[TypedChunk] = []
 
         self._create_chunks()
+
+    @classmethod
+    def _log(cls, name: Optional[str] = None) -> logging.Logger:
+        if name is None:
+            return logging.getLogger(LOG_NAME + ".Chao")
+        return logging.getLogger(LOG_NAME + f".Chao.{name}")
 
     def _create_chunks(self) -> None:
         for chunk in CHAO_OFFSETS:
             if chunk["Data type"] not in CHUNK_LOOKUP:
-                # TODO : Logger.warning
-                print(
-                    f"Couldn't read chunk {chunk['Attribute']} - data type = {chunk['Data type']}"
+                self._log().warning(
+                    "Couldn't read chunk %s - data type = %s.",
+                    chunk["Attribute"],
+                    chunk["Data type"],
                 )
                 continue
             offset = chunk["Offset"]
@@ -36,11 +46,13 @@ class Chao:
             data_loader = CHUNK_LOOKUP[str(chunk["Data type"])]
             lookup = LOOKUP_TABLES.get(str(chunk["Lookup"]), {})
 
-            self.chunks[str(chunk["Attribute"])] = data_loader.load(
-                label=str(chunk["Attribute"]),
-                data=self.binary,
-                start=offset,
-                lookup=lookup,
+            self.chunks.append(
+                data_loader.load(
+                    label=str(chunk["Attribute"]),
+                    data=self.binary,
+                    start=offset,
+                    lookup=lookup,
+                )
             )
 
     def unresolved_bytes(self) -> Dict[int, int]:
@@ -49,14 +61,14 @@ class Chao:
         offset.
         """
         resolved: List[int] = []
-        for chunk in self.chunks.values():
+        for chunk in self.chunks:
             resolved.extend(range(chunk.start, chunk.end))
         return {x: int(y) for x, y in enumerate(self.binary) if x not in resolved}
 
     def _unresolved_bytes_str(self) -> Dict[int, str]:
 
         resolved: List[int] = []
-        for chunk in self.chunks.values():
+        for chunk in self.chunks:
             resolved.extend(range(chunk.start, chunk.end))
 
         output = {}
@@ -81,7 +93,7 @@ class Chao:
         Export the Chao to a dictionary.
         """
         output = {}
-        for attribute in self.chunks.values():
+        for attribute in self.chunks:
             output[attribute.label] = attribute.get_value()
         output["unresolved"] = self._unresolved_bytes_str()
         return output
@@ -94,9 +106,20 @@ class Chao:
             json.dump(self.to_dict(), file, indent=4)
 
     def __getitem__(self, label: str) -> TypedChunk:
-        return self.chunks[label].get_value()
+        candidates = [chunk for chunk in self.chunks if chunk.label == label]
+        if len(candidates) == 0:
+            raise KeyError(f"Chao has no label: {label}.")
+        if len(candidates) > 1:
+            first_entry = candidates[0]
+            for entry in candidates[1:]:
+                if entry != first_entry:
+                    self._log().warning("Inconsistent value for %s.", first_entry.label)
+        return candidates[0].get_value()
 
     def __setitem__(self, label: str, value: Any) -> None:
-        chunk: TypedChunk = self.chunks[label]
-        chunk.set_value(value)
-        self.binary = chunk.inject(self.binary)
+
+        for chunk in self.chunks:
+            if chunk.label != label:
+                continue
+            chunk.set_value(value)
+            self.binary = chunk.inject(self.binary)

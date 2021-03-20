@@ -124,3 +124,45 @@ def test_file_modified():
         other = chao_examiner.ChaoSaveFile(temp_path)
         assert other.get_chao(0)["Name"] == "Test"
         assert get_sha256(original_path) != get_sha256(temp_path)
+
+
+def test_file_resaved():
+    """
+    Check that changes to the save file are properly stored and that modified files are
+    identical to the input (to pick up any byte-encoding errors).
+    """
+
+    original_path = data_path("SONIC2B__ALF")
+
+    # Load data & variables.
+    start_sha = get_sha256(original_path)
+    data = chao_examiner.ChaoSaveFile(original_path)
+    chao = data.get_chao(0)
+    start_name = chao["Name"]
+
+    # Change the chao's name.
+    chao["Name"] = "Test"
+    assert chao["Name"] == "Test"
+    data.set_chao(chao, 0)
+
+    # Push the data through a save-file
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path_a = temp_dir + "/load_save"
+        data.write(temp_path_a)
+        intermediate = chao_examiner.ChaoSaveFile(temp_path_a)
+        intermediate_sha = get_sha256(temp_path_a)
+
+    # Change the chao's name back.
+    chao = intermediate.get_chao(0)
+    chao["Name"] = start_name
+    assert chao["Name"] == start_name
+    intermediate.set_chao(chao, 0)
+
+    # And push to a final save file
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path_a = temp_dir + "/load_save"
+        intermediate.write(temp_path_a)
+        final_sha = get_sha256(temp_path_a)
+
+    assert start_sha == final_sha
+    assert start_sha != intermediate_sha

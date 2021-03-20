@@ -81,3 +81,6 @@ class ChaoSaveFile:
         logger.debug("Clearing chao %s.", chao_no)
         self.chao[chao_no].clear()
         self.chao[chao_no].inject(self.loader)
+
+
+# TODO non-chao data.
