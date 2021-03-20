@@ -7,8 +7,6 @@ from typing import Dict, Optional, Union
 
 from .logs import LOG_NAME
 
-# TODO : Comparison operations & general niceties.
-
 
 class BinaryChunk:
     """
@@ -27,12 +25,18 @@ class BinaryChunk:
 
         If the target is a BinaryLoader, the data is also updated.
         """
-        if not isinstance(target_data, BinaryLoader):
-            return target_data[: self.start] + self.data + target_data[: self.start]
+        if isinstance(target_data, BinaryLoader):
+            binary = target_data.binary
+        elif isinstance(target_data, bytes):
+            binary = target_data
+        else:
+            raise TypeError("Can only inject data into a Bytes of BinaryLoader")
 
-        binary = target_data.binary
-        binary = binary[: self.start] + self.data + binary[: self.start]
-        target_data.binary = binary
+        binary = binary[: self.start] + self.data + binary[self.end :]
+
+        if isinstance(target_data, BinaryLoader):
+            target_data.binary = binary
+
         return binary
 
     def update(self, new_data: bytes) -> None:
@@ -49,10 +53,28 @@ class BinaryChunk:
         """Wipe the data from the chunk."""
         self.data = b"\x00" * (self.end - self.start)
 
-    def swap(self, new_data: bytes, target_data: Union["BinaryLoader", bytes]) -> None:
+    def swap(self, new_data: bytes, target_data: Union["BinaryLoader", bytes]) -> bytes:
         """Update the chunk to the new data and inject it into the larget binary."""
         self.update(new_data)
-        self.inject(target_data)
+        return self.inject(target_data)
+
+    def __str__(self) -> str:
+        return f"<BinaryChunk {self.label} ({len(self.data)} bytes, start={self.start}, end={self.end})>"
+
+    __repr__ = __str__
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BinaryChunk):
+            raise TypeError("Can only compare a BinaryChunk to another BinaryChunk.")
+        if self.label != other.label:
+            return False
+        if self.data != other.data:
+            return False
+        if self.start != other.start:
+            return False
+        if self.end != other.end:
+            return False
+        return True
 
 
 class BinaryLoader:

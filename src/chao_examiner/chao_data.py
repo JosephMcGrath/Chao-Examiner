@@ -927,6 +927,18 @@ CHAO_OFFSETS: List[Dict[str, Union[str, int, None]]] = [
         "Lookup": None,
     },
     {
+        "Attribute": "UNKNOWN 01",
+        "Offset": 308,
+        "Data type": "Short",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN 02",
+        "Offset": 320,
+        "Data type": "Short",
+        "Lookup": None,
+    },
+    {
         "Attribute": "Karate Rounds Played",
         "Offset": 270,
         "Data type": "Short",

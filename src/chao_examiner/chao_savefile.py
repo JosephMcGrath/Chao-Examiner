@@ -17,21 +17,26 @@ class ChaoSaveFile:
     """
 
     data_start = 15012
-    data_length = 2048
+    data_length = 2047
     data_count = 24
 
     def __init__(self, path: str) -> None:
         self.path = path
         self.loader = BinaryLoader.read(path)
         self.chao: List[BinaryChunk] = []
-        # TODO : Check length
-        for chao_no, line_no in enumerate(
-            [self.data_start + x * self.data_length for x in range(self.data_count)]
-        ):
-            chao_name = f"chao_{chao_no + 1}"
-            self.chao.append(
-                self.loader.chunk(chao_name, line_no, line_no + self.data_length)
+
+        required_length = self.data_start + (self.data_length * self.data_count)
+        if len(self.loader.binary) < required_length:
+            raise ValueError(
+                f"Data is too short ({len(self.loader.binary)} vs {required_length}"
             )
+
+        start_byte = self.data_start
+        for chao_no in range(self.data_count):
+            end_byte = start_byte + self.data_length
+            chao_name = f"chao_{chao_no + 1}"
+            self.chao.append(self.loader.chunk(chao_name, start_byte, end_byte))
+            start_byte = end_byte + 1
 
     def write(self, path: Optional[str] = None) -> None:
         """Write the save file to its original or the selected path."""

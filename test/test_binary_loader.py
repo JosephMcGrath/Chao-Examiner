@@ -1,10 +1,9 @@
-import hashlib
 import tempfile
 
 import chao_examiner
 import pytest
 
-from .load_data import data_path
+from .load_data import data_path, get_sha256
 
 
 def test_load():
@@ -146,16 +145,3 @@ def test_load_save_modified():
         with open(temp_path, "rb") as file:
             raw = file.read()
         assert raw[0:25] == new_data
-
-
-def get_sha256(path: str) -> str:
-    """Calculates a sha256 hash of the file."""
-    sha256 = hashlib.sha256()
-    with open(path, "rb") as f:
-        while True:
-            data = f.read(65536)
-            if not data:
-                break
-            sha256.update(data)
-
-    return sha256.hexdigest()

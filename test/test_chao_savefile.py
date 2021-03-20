@@ -4,7 +4,7 @@ import tempfile
 import chao_examiner
 import pytest
 
-from .load_data import data_path
+from .load_data import data_path, get_sha256
 
 
 def load_savefile(data_name: str) -> chao_examiner.ChaoSaveFile:
@@ -80,3 +80,47 @@ def test_clear_chao():
 
     assert slot_0_start.binary != slot_0_end.binary
     assert slot_0_end.binary == b"\x00" * data.data_length
+
+
+def test_file_passthrough():
+    """
+    Check that pulling a chao out and putting it back is transparent.
+    """
+
+    original_path = data_path("SONIC2B__ALF")
+
+    data = chao_examiner.ChaoSaveFile(original_path)
+    chao = data.get_chao(0)
+    data.set_chao(chao, 0)
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = temp_dir + "/load_save"
+        data.write(temp_path)
+
+        other = chao_examiner.ChaoSaveFile(temp_path)
+        for x in range(24):
+            assert data.chao[x] == other.chao[x]
+
+        assert get_sha256(original_path) == get_sha256(temp_path)
+
+
+def test_file_modified():
+    """
+    Check that changes to the save file are properly stored.
+    """
+
+    original_path = data_path("SONIC2B__ALF")
+
+    data = chao_examiner.ChaoSaveFile(original_path)
+    chao = data.get_chao(0)
+    chao["Name"] = "Test"
+    assert chao["Name"] == "Test"
+    data.set_chao(chao, 0)
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = temp_dir + "/load_save"
+        data.write(temp_path)
+
+        other = chao_examiner.ChaoSaveFile(temp_path)
+        assert other.get_chao(0)["Name"] == "Test"
+        assert get_sha256(original_path) != get_sha256(temp_path)

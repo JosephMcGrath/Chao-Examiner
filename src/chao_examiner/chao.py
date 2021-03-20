@@ -2,7 +2,7 @@
 Data defining an individual chao.
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 import json
 from .chao_data import CHAO_OFFSETS, LOOKUP_TABLES
 from .typed_chunk import CHUNK_LOOKUP, TypedChunk
@@ -22,6 +22,7 @@ class Chao:
     def _create_chunks(self) -> None:
         for chunk in CHAO_OFFSETS:
             if chunk["Data type"] not in CHUNK_LOOKUP:
+                # TODO : Logger.warning
                 print(
                     f"Couldn't read chunk {chunk['Attribute']} - data type = {chunk['Data type']}"
                 )
@@ -91,3 +92,11 @@ class Chao:
         """
         with open(path, "w", encoding="utf-8") as file:
             json.dump(self.to_dict(), file, indent=4)
+
+    def __getitem__(self, label: str) -> TypedChunk:
+        return self.chunks[label].get_value()
+
+    def __setitem__(self, label: str, value: Any) -> None:
+        chunk: TypedChunk = self.chunks[label]
+        chunk.set_value(value)
+        self.binary = chunk.inject(self.binary)

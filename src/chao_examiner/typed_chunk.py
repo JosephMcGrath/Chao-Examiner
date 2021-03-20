@@ -60,7 +60,7 @@ class TypedChunk(BinaryChunk):
         """
         Set the value of the byte.
         """
-        self.data = struct.pack(self.format, value)
+        self.update(struct.pack(self.format, value))
 
 
 class ByteChunk(TypedChunk):
@@ -139,16 +139,22 @@ class ChaoNameChunk(TypedChunk):
         Set the value of the byte.
         """
 
+        if not isinstance(value, str):
+            raise TypeError(f"Chao name has to be a string, not {type(value)}")
+        if len(value) > 7:
+            raise ValueError(
+                f"Chao name must be at most 7 characters, not {len(value)}"
+            )
+
         accumulator: List[int] = []
         for character in range(7):
             if character > len(value) - 1:
                 accumulator.append(0)
                 continue
-            print(character)
             accumulator.extend(
                 [x for x, y in CHARACTER_ENCODING.items() if y == value[character]]
             )
-        self.data = bytes(accumulator)
+        self.update(bytes(accumulator))
 
 
 class TimeChunk(TypedChunk):
@@ -178,7 +184,7 @@ class TimeChunk(TypedChunk):
         if any(not x.isnumeric() for x in parts):
             raise ValueError("Each part of the time must be a number.")
 
-        self.data = bytes([int(x) for x in parts])
+        self.update(bytes([int(x) for x in parts]))
 
 
 class ByteLookup(ByteChunk):
@@ -206,7 +212,7 @@ class ByteLookup(ByteChunk):
         if value not in self.lookup.values():
             raise KeyError(f"{value} isn't a valid lookup value.")
         number = [x for x, y in self.lookup.items() if y == value][0]
-        self.data = struct.pack(self.format, number)
+        self.update(struct.pack(self.format, number))
 
 
 class IntFlags(IntChunk):
@@ -243,9 +249,8 @@ class IntFlags(IntChunk):
             if new_key not in inverted_lookup:
                 raise ValueError(f"{new_key} not in lookup table {inverted_lookup}.")
             if new_value:
-                print(to_set)
                 to_set += inverted_lookup[new_key]
-        self.data = struct.pack(self.format, to_set)
+        self.update(struct.pack(self.format, to_set))
 
 
 class ShortFlags(IntFlags):
