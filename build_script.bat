@@ -1,5 +1,5 @@
 @ECHO OFF
-@CALL activate chao_examiner
+@CALL activate
 
 ROBOCOPY %~dp0\dist %package_local%
 
