@@ -3,10 +3,13 @@ Utilities to manage a single Sonic Adventure 2 Battle (steam) chao save file.
 """
 
 
+import glob
+import json
 import logging
-from typing import Optional, List
+import os
+from typing import Dict, List, Optional
 
-from .binary_loader import BinaryLoader, BinaryChunk
+from .binary_loader import BinaryChunk, BinaryLoader
 from .chao import Chao
 from .logs import LOG_NAME
 
@@ -38,12 +41,55 @@ class ChaoSaveFile:
             self.chao.append(self.loader.chunk(chao_name, start_byte, end_byte))
             start_byte = end_byte + 1
 
+    @classmethod
+    def find(cls, path: str) -> "ChaoSaveFile":
+        """
+        Find the save file from the starting path provided.
+        """
+        if os.path.split(path)[1] == "SONIC2B__ALF":
+            return cls(path)
+
+        candidates = glob.glob(f"{path}/**/SONIC2B__ALF", recursive=True)
+        if len(candidates) == 0:
+            raise FileNotFoundError("No Chao savefile found at that path.")
+        if len(candidates) > 1:
+            raise RuntimeError("More than one Chao savefile found at that path.")
+
+        return cls(candidates[0])
+
     def write(self, path: Optional[str] = None) -> None:
         """Write the save file to its original or the selected path."""
-        # TODO : Not currently writing valid saves.
         if path is None:
             path = self.path
         self.loader.write(path)
+
+    def to_json(self, path: str) -> None:
+        """Write all the chao in the file to JSON."""
+        for chao_no in range(24):
+            chao = self.get_chao(chao_no)
+            if not chao.is_active():
+                continue
+            output_path = os.path.join(path, f"chao_{str(chao_no).zfill(2)}.json")
+            chao.to_json(output_path)
+
+    def unresolved_bytes(self) -> Dict[int, int]:
+        """
+        Create a dictionary describing un-resolved bytes in the savefile, listed by byte
+        offset.
+        """
+        resolved: List[int] = []
+        for chao in self.chao:
+            resolved.extend(range(chao.start, chao.end))
+        return {
+            x: int(y) for x, y in enumerate(self.loader.binary) if x not in resolved
+        }
+
+    def unresolved_json(self, path: str) -> None:
+        """
+        Export all un-resolved bytes to JSON.
+        """
+        with open(path, "w", encoding="utf-8") as file:
+            json.dump(self.unresolved_bytes(), file, indent=4)
 
     @classmethod
     def _log(cls, name: Optional[str] = None) -> logging.Logger:

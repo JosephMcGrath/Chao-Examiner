@@ -325,6 +325,18 @@ CHAO_OFFSETS: List[Dict[str, Union[str, int, None]]] = [
         "Lookup": None,
     },
     {
+        "Attribute": "Onyx Race Time",
+        "Offset": 248,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "Diamond Race Time",
+        "Offset": 251,
+        "Data type": "Time",
+        "Lookup": None,
+    },
+    {
         "Attribute": "Karate Rank (Fights)",
         "Offset": 266,
         "Data type": "Byte",
@@ -852,6 +864,42 @@ CHAO_OFFSETS: List[Dict[str, Union[str, int, None]]] = [
         "Attribute": "SADX Big bond",
         "Offset": 1306,
         "Data type": "Signed byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN - Evolved?",
+        "Offset": 136,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN 03",
+        "Offset": 134,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN 04",
+        "Offset": 282,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN 05 - Constant",
+        "Offset": 318,
+        "Data type": "Short",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN 06",
+        "Offset": 342,
+        "Data type": "Byte",
+        "Lookup": None,
+    },
+    {
+        "Attribute": "UNKNOWN 07",
+        "Offset": 331,
+        "Data type": "Byte",
         "Lookup": None,
     },
 ]

@@ -28,6 +28,10 @@ class Chao:
             return logging.getLogger(LOG_NAME + ".Chao")
         return logging.getLogger(LOG_NAME + f".Chao.{name}")
 
+    def is_active(self) -> bool:
+        """Check if the Chao is active."""
+        return bool(sum(self.binary))
+
     def _create_chunks(self) -> None:
         for chunk in CHAO_OFFSETS:
             if chunk["Data type"] not in CHUNK_LOOKUP:
@@ -104,6 +108,11 @@ class Chao:
         """
         with open(path, "w", encoding="utf-8") as file:
             json.dump(self.to_dict(), file, indent=4)
+
+    def __str__(self) -> str:
+        return f"<Chao: {self['Name']}>"
+
+    __repr__ = __str__
 
     def __getitem__(self, label: str) -> TypedChunk:
         candidates = [chunk for chunk in self.chunks if chunk.label == label]

@@ -12,7 +12,7 @@ with open(HERE / "readme.md", encoding="utf-8") as f:
 # This call to setup() does all the work
 setup(
     name="chao_examiner",
-    version="0.1.0",
+    version="0.9.0",
     description="Module to load, examine and manipulate Chao data for Sonic Adventure 2 save data.",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -29,4 +29,7 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     install_requires=[],
+    entry_points={
+        "console_scripts": ["chao_examiner=chao_examiner.__main__:chao_to_json"]
+    },
 )
