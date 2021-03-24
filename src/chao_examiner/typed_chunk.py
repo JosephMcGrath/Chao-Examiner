@@ -25,6 +25,7 @@ class TypedChunk(BinaryChunk):
         data: bytes,
         start: int,
         lookup: Optional[Dict[int, str]] = None,
+        group: Optional[str] = None,
     ) -> "TypedChunk":
         """
         Load the chunk based on it's typed properties.
@@ -39,6 +40,7 @@ class TypedChunk(BinaryChunk):
             output.lookup = {}
         else:
             output.lookup = lookup
+        output.group = group
         return output
 
     def __init__(self, label: str, data: bytes, start: int, end: int) -> None:
@@ -49,6 +51,7 @@ class TypedChunk(BinaryChunk):
             end=end,
         )
         self.lookup: Dict[int, str]
+        self.group: Optional[str]
 
     def get_value(self) -> Any:
         """

@@ -56,6 +56,7 @@ class Chao:
                     data=self.binary,
                     start=offset,
                     lookup=lookup,
+                    group=chunk.get("Group"),
                 )
             )
 
@@ -98,7 +99,14 @@ class Chao:
         """
         output = {}
         for attribute in self.chunks:
-            output[attribute.label] = attribute.get_value()
+            if attribute.group is None:
+                output[attribute.label] = attribute.get_value()
+            else:
+                if attribute.group in output:
+                    output[attribute.group][attribute.label] = attribute.get_value()
+                else:
+                    output[attribute.group] = {attribute.label: attribute.get_value()}
+
         output["unresolved"] = self._unresolved_bytes_str()
         return output
 

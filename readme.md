@@ -57,5 +57,5 @@ This changes the values in the file, but the game refuses to read the resulting 
 
 1. Pretty extraction of non-chao data
     * Ideally set up to be able to work out what's going on next time I'm working with this,
-    * Group exported files,
-2. Stick it on GitHub,
+2. Pull out remaining to-do items,
+3. Stick it on GitHub,
