@@ -5,8 +5,6 @@ Lookup tables for data on Chao
 Data taken from: https://chao.tehfusion.co.uk/chao-hacking/
 """
 
-# TODO : Data groups (use in JSON).
-
 from typing import Dict, List, Union
 
 DATA_TYPE_LENGTHS: Dict[str, int] = {

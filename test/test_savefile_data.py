@@ -2,6 +2,7 @@
 Checks on the data used to load data from the save-file.
 """
 
+from chao_examiner.chao_data import LOOKUP_TABLES
 from chao_examiner.save_file_data import SAVE_FILE_OFFSETS
 from chao_examiner.typed_chunk import CHUNK_LOOKUP
 
@@ -56,3 +57,24 @@ def test_group_integrity():
     for this_group in group_counts.values():
         print(this_group)
         assert len(this_group) > 1
+
+
+def test_overlaps():
+    """
+    Check that there's no overlaps between different chunks.
+    """
+    chunk_map = {}
+    for chunk in SAVE_FILE_OFFSETS:
+        data_loader = CHUNK_LOOKUP[str(chunk["Data type"])]
+        lookup = LOOKUP_TABLES.get(str(chunk["Lookup"]), {})
+        temp = data_loader.load(
+            label=str(chunk["Attribute"]),
+            data=b"0000000000000000000000000000",
+            start=chunk["Offset"],
+            lookup=lookup,
+            group=chunk.get("Group"),
+        )
+        for n in range(temp.start, temp.end):
+            print(temp.label, chunk_map)
+            assert n not in chunk_map
+            chunk_map[n] = temp.label

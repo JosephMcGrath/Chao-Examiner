@@ -7,8 +7,6 @@ from typing import Any, Dict, List, Optional
 from .binary_loader import BinaryChunk
 from .chao_data import CHARACTER_ENCODING
 
-# TODO : Validate and throw warnings using the chunk's label.
-
 
 class TypedChunk(BinaryChunk):
     """
@@ -174,7 +172,6 @@ class TimeChunk(TypedChunk):
         """
         Extract the value of the byte.
         """
-        # TODO : Something's up with milliseconds.
         return ":".join([f"{int(x):02}" for x in self.data])
 
     def set_value(self, value: str) -> None:

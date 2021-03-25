@@ -23,9 +23,9 @@ def chao_to_json() -> None:
     if args.source_dir is None:
         print("Need to specify a source path.")
         return
+    
+    output_dir = args.output_dir
+    if os.path.splitext(output_dir)[1] == "":
+        output_dir = os.path.join(output_dir, "chao.json")
 
     ChaoSaveFile.find(args.source_dir).to_json(args.output_dir)
-
-
-if __name__ == "__main__":
-    chao_to_json()

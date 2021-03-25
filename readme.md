@@ -53,9 +53,11 @@ save_file.write(temp_path_a)
 This changes the values in the file, but the game refuses to read the resulting save file.
 
 
-## TODO
+## To Do
 
-1. Pretty extraction of non-chao data
-    * Ideally set up to be able to work out what's going on next time I'm working with this,
-2. Pull out remaining to-do items,
 3. Stick it on GitHub,
+
+
+1. There's something on with seconds sub-divisions (`TimeChunk`).
+2. Shared behaviour between `ChaoSaveFile` & `Chao` implies merging is required.
+3. Second output format (csv?) to aid in decoding new chunks.

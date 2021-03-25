@@ -11,7 +11,10 @@ from typing import Dict, List, Optional
 
 from .binary_loader import BinaryChunk, BinaryLoader
 from .chao import Chao
+from .chao_data import LOOKUP_TABLES
 from .logs import LOG_NAME
+from .save_file_data import SAVE_FILE_OFFSETS
+from .typed_chunk import CHUNK_LOOKUP, TypedChunk
 
 
 class ChaoSaveFile:
@@ -27,6 +30,9 @@ class ChaoSaveFile:
         self.path = path
         self.loader = BinaryLoader.read(path)
         self.chao: List[BinaryChunk] = []
+        self.chunks: List[TypedChunk] = []
+
+        self._create_chunks()
 
         required_length = self.data_start + (self.data_length * self.data_count)
         if len(self.loader.binary) < required_length:
@@ -40,6 +46,34 @@ class ChaoSaveFile:
             chao_name = f"chao_{chao_no + 1}"
             self.chao.append(self.loader.chunk(chao_name, start_byte, end_byte))
             start_byte = end_byte + 1
+
+    def _create_chunks(self) -> None:
+        for chunk in SAVE_FILE_OFFSETS:
+            if chunk["Data type"] not in CHUNK_LOOKUP:
+                self._log().warning(
+                    "Couldn't read chunk %s - data type = %s.",
+                    chunk["Attribute"],
+                    chunk["Data type"],
+                )
+                continue
+            offset = chunk["Offset"]
+            if not isinstance(offset, int):
+                raise TypeError(
+                    f"{chunk['Attribute']}.Offset is the wrong type ({type(chunk['Offset'])})"
+                )
+
+            data_loader = CHUNK_LOOKUP[str(chunk["Data type"])]
+            lookup = LOOKUP_TABLES.get(str(chunk["Lookup"]), {})
+
+            self.chunks.append(
+                data_loader.load(
+                    label=str(chunk["Attribute"]),
+                    data=self.loader.binary,
+                    start=offset,
+                    lookup=lookup,
+                    group=chunk.get("Group"),
+                )
+            )
 
     @classmethod
     def find(cls, path: str) -> "ChaoSaveFile":
@@ -63,14 +97,37 @@ class ChaoSaveFile:
             path = self.path
         self.loader.write(path)
 
-    def to_json(self, path: str) -> None:
-        """Write all the chao in the file to JSON."""
-        for chao_no in range(24):
+    def to_dict(self) -> Dict[str, int]:
+        """
+        Export the save file to a dictionary.
+        """
+        output = {}
+        for attribute in self.chunks:
+            if attribute.group is None:
+                output[attribute.label] = attribute.get_value()
+            else:
+                if attribute.group in output:
+                    output[attribute.group][attribute.label] = attribute.get_value()
+                else:
+                    output[attribute.group] = {attribute.label: attribute.get_value()}
+
+        output["chao"] = []
+        for chao_no in range(self.data_count):
             chao = self.get_chao(chao_no)
             if not chao.is_active():
                 continue
-            output_path = os.path.join(path, f"chao_{str(chao_no).zfill(2)}.json")
-            chao.to_json(output_path)
+            chao_dict = chao.to_dict()
+            del chao_dict["unresolved"]
+            output["chao"].append(chao_dict)
+
+        return output
+
+    def to_json(self, path: str) -> None:
+        """
+        Export the save file to a JSON file.
+        """
+        with open(path, "w", encoding="utf-8") as file:
+            json.dump(self.to_dict(), file, indent=4)
 
     def unresolved_bytes(self) -> Dict[int, int]:
         """
@@ -127,6 +184,3 @@ class ChaoSaveFile:
         logger.debug("Clearing chao %s.", chao_no)
         self.chao[chao_no].clear()
         self.chao[chao_no].inject(self.loader)
-
-
-# TODO non-chao data.

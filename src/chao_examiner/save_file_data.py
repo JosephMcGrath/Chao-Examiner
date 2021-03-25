@@ -49,7 +49,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Crab Pool Record Time",
         "Group": "Races",
         "Offset": 14315,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -63,7 +63,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Stumo Valley Record Time",
         "Group": "Races",
         "Offset": 14366,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -77,7 +77,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Mushroom Forest Record Time",
         "Group": "Races",
         "Offset": 14417,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -91,7 +91,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Block Canyon Record Time",
         "Group": "Races",
         "Offset": 14473,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -105,7 +105,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Aquamarine Record Time",
         "Group": "Races",
         "Offset": 14529,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -119,7 +119,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Topaz Record Time",
         "Group": "Races",
         "Offset": 14585,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -133,7 +133,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Peridot Record Time",
         "Group": "Races",
         "Offset": 14641,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -147,7 +147,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Garnet Record Time",
         "Group": "Races",
         "Offset": 14697,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -161,7 +161,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Onyx Record Time",
         "Group": "Races",
         "Offset": 14753,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
@@ -175,7 +175,7 @@ SAVE_FILE_OFFSETS = [
         "Attribute": "Diamond Record Time",
         "Group": "Races",
         "Offset": 14809,
-        "Data type": "Name",
+        "Data type": "Time",
         "Lookup": None,
     },
     {
