@@ -55,7 +55,5 @@ This changes the values in the file, but the game refuses to read the resulting 
 
 ## To Do
 
-3. Stick it on GitHub,
-
 1. There's something on with seconds sub-divisions (`TimeChunk`).
 2. Second output format (csv?) to aid in decoding new chunks.
