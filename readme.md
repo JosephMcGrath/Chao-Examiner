@@ -57,7 +57,5 @@ This changes the values in the file, but the game refuses to read the resulting 
 
 3. Stick it on GitHub,
 
-
 1. There's something on with seconds sub-divisions (`TimeChunk`).
-2. Shared behaviour between `ChaoSaveFile` & `Chao` implies merging is required.
-3. Second output format (csv?) to aid in decoding new chunks.
+2. Second output format (csv?) to aid in decoding new chunks.

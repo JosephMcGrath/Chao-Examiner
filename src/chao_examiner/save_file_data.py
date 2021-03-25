@@ -1,8 +1,10 @@
 """
 Data and lookups for chao save files.
 """
+from typing import Dict, List, Union
 
-SAVE_FILE_OFFSETS = [
+
+SAVE_FILE_OFFSETS: List[Dict[str, Union[str, int, None]]] = [
     {
         "Attribute": "UNKNOWN - Garden Entries?",
         "Group": "Unknown",

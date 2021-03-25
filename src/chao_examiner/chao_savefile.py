@@ -7,17 +7,18 @@ import glob
 import json
 import logging
 import os
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from .binary_loader import BinaryChunk, BinaryLoader
 from .chao import Chao
-from .chao_data import LOOKUP_TABLES
 from .logs import LOG_NAME
 from .save_file_data import SAVE_FILE_OFFSETS
-from .typed_chunk import CHUNK_LOOKUP, TypedChunk
+from .typed_chunk import TypedChunk
+
+from .chunk_extractor import ChunkExtractor
 
 
-class ChaoSaveFile:
+class ChaoSaveFile(ChunkExtractor):
     """
     A single Sonic Adventure 2 Battle (steam) chao save file.
     """
@@ -26,18 +27,21 @@ class ChaoSaveFile:
     data_length = 2047
     data_count = 24
 
+    offsets = SAVE_FILE_OFFSETS
+
     def __init__(self, path: str) -> None:
         self.path = path
         self.loader = BinaryLoader.read(path)
+        self.binary = self.loader.binary
         self.chao: List[BinaryChunk] = []
         self.chunks: List[TypedChunk] = []
 
         self._create_chunks()
 
         required_length = self.data_start + (self.data_length * self.data_count)
-        if len(self.loader.binary) < required_length:
+        if len(self.binary) < required_length:
             raise ValueError(
-                f"Data is too short ({len(self.loader.binary)} vs {required_length}"
+                f"Data is too short ({len(self.binary)} vs {required_length}"
             )
 
         start_byte = self.data_start
@@ -46,34 +50,6 @@ class ChaoSaveFile:
             chao_name = f"chao_{chao_no + 1}"
             self.chao.append(self.loader.chunk(chao_name, start_byte, end_byte))
             start_byte = end_byte + 1
-
-    def _create_chunks(self) -> None:
-        for chunk in SAVE_FILE_OFFSETS:
-            if chunk["Data type"] not in CHUNK_LOOKUP:
-                self._log().warning(
-                    "Couldn't read chunk %s - data type = %s.",
-                    chunk["Attribute"],
-                    chunk["Data type"],
-                )
-                continue
-            offset = chunk["Offset"]
-            if not isinstance(offset, int):
-                raise TypeError(
-                    f"{chunk['Attribute']}.Offset is the wrong type ({type(chunk['Offset'])})"
-                )
-
-            data_loader = CHUNK_LOOKUP[str(chunk["Data type"])]
-            lookup = LOOKUP_TABLES.get(str(chunk["Lookup"]), {})
-
-            self.chunks.append(
-                data_loader.load(
-                    label=str(chunk["Attribute"]),
-                    data=self.loader.binary,
-                    start=offset,
-                    lookup=lookup,
-                    group=chunk.get("Group"),
-                )
-            )
 
     @classmethod
     def find(cls, path: str) -> "ChaoSaveFile":
@@ -97,19 +73,11 @@ class ChaoSaveFile:
             path = self.path
         self.loader.write(path)
 
-    def to_dict(self) -> Dict[str, int]:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Export the save file to a dictionary.
         """
-        output = {}
-        for attribute in self.chunks:
-            if attribute.group is None:
-                output[attribute.label] = attribute.get_value()
-            else:
-                if attribute.group in output:
-                    output[attribute.group][attribute.label] = attribute.get_value()
-                else:
-                    output[attribute.group] = {attribute.label: attribute.get_value()}
+        output = super().to_dict()
 
         output["chao"] = []
         for chao_no in range(self.data_count):
@@ -137,9 +105,7 @@ class ChaoSaveFile:
         resolved: List[int] = []
         for chao in self.chao:
             resolved.extend(range(chao.start, chao.end))
-        return {
-            x: int(y) for x, y in enumerate(self.loader.binary) if x not in resolved
-        }
+        return {x: int(y) for x, y in enumerate(self.binary) if x not in resolved}
 
     def unresolved_json(self, path: str) -> None:
         """
@@ -175,6 +141,7 @@ class ChaoSaveFile:
         logger = self._log()
         logger.debug("Setting chao %s.", chao_no)
         self.chao[chao_no].swap(chao.binary, self.loader)
+        self.binary = self.loader.binary
 
     def clear_chao(self, chao_no: int) -> None:
         """
@@ -184,3 +151,4 @@ class ChaoSaveFile:
         logger.debug("Clearing chao %s.", chao_no)
         self.chao[chao_no].clear()
         self.chao[chao_no].inject(self.loader)
+        self.binary = self.loader.binary
