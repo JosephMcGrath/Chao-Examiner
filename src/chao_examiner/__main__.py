@@ -3,9 +3,11 @@ Command-line tool to convert a Chao file to JSON extracts.
 """
 
 import argparse
+import logging
 import os
 
 from .chao_savefile import ChaoSaveFile
+from .logs import LOG_NAME
 
 
 def chao_to_json() -> None:
@@ -25,7 +27,14 @@ def chao_to_json() -> None:
         return
 
     output_dir = args.output_dir
-    if os.path.splitext(output_dir)[1] == "":
+    if os.path.splitext(output_dir)[-1] == "":
+        logging.getLogger(LOG_NAME).warning(
+            "Output is a directory - writing to chao.json in the folder."
+        )
         output_dir = os.path.join(output_dir, "chao.json")
 
-    ChaoSaveFile.find(args.source_dir).to_json(args.output_dir)
+    ChaoSaveFile.find(args.source_dir).to_json(output_dir)
+
+
+if __name__ == "__main__":
+    chao_to_json()
